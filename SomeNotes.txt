@@ -275,6 +275,150 @@ setting 搜索mevan
 3. 设置Local repository: 在Maven目录新建的my-repository
 
 ------------------------------------------------------------------
+ascii与unicode之间转码
+ascii --> unicode : str.decode('utf-8')
+unicode --> ascii : ustr.encode('ascii')
+
+------------------------------------------------
+使用正则匹配 如果原字符串是str类型
+不能用[]来匹配中文 要用 |
+'这是个句子' --> '个子'
+a = '这是个句子'
+re.sub('这|是|句', '', a)
+
+------------------------------------------------
+通过os操作来读取中文名文件不需要加u''
+如果直接读取中文文件则需要加u''
+f = open(u'这是个一中文文档.txt', 'r')
+
+------------------------------------------------
+filepath = '/home/luoming/newproject/xinhua_news.txt'
+os.path.splitext(filepath)
+('/home/luoming/newproject/xinhua_news', '.txt')
+
+os.path.split(filepath)
+('/home/luoming/newproject', 'xinhua_news.txt')
+
+------------------------------------------------
+pd.Dataframe.replace()
+如果参数regex=True 则会根据正则匹配, 并且将会替代含有 匹配的部分
+如果regex=False 则是整个str替换 而不是只替换含有的str
+
+------------------------------------------------
+将python2和python3同时放入cmd中
+复制python.exe到当前目录，并更改名字python2.exe or python3.exe
+并将python.exe所在目录放入环境变量path中
+python2 -m pip install packagename
+python3 -m pip install packagename
+就可以在cmd中分别运行两种版本的cmd
+
+------------------------------------------------
+sublimeText3 更改sublimeREPL的运行目录
+找到C:\Users\luoming3\AppData\Roaming\Sublime Text 3\Packages\SublimeREPL\config\Python中的
+Main.sublime-menu
+并更改对应command下的cmd
+"cmd": ["python2", "-i", "-u", "-m", "pdb", "$file_basename"]
+里面python2就是我们所需要的版本（已经将python2添加到环境变量path中）
+
+------------------------------------------------
+sublimeText3 新建指定Header的py文件
+1. ctrl+shift+p用Install Package安装fileheader
+2. 打开首选项 > Package Settings > File Header > Settings-User
+3. 添加以下代码:
+{
+  "Default":{
+    "author": "Luo Ming",
+    "email": "524770982@qq.com"
+  }
+} 
+4. 打开 首选项 > 浏览插件目录 > FileHeader > template > header
+修改Python.tmpl文件, 其中{{param}} 里面的param参数就是settinguser里面的配置
+
+------------------------------------------------
+linux 查看当前目录文件数
+包含子目录：
+ls -lR|grep "^-"| wc -l
+不包含子目录：
+ls -l|grep "^-"| wc -l
+
+制定文件开头的目录下的全部文件数量
+ls -lR 20161124*/|grep "^-"| wc -l
+------------------------------------------------
+pandas.count()
+不会计算NA和None值 但是''会被统计进去
+
+------------------------------------------------
+Git操作:
+一、
+初始化一个Git仓库，使用git init
+添加文件到Git仓库，分两步：
+使用命令git add <file>，注意，可反复多次使用，添加多个文件；
+最后使用命令git commit -m <message> 完成。 message相当于此次修改的注释
+
+二、
+要随时掌握工作区的状态，使用git status命令。
+如果git status告诉你有文件被修改过，用git diff可以查看修改内容。
+
+三、
+Git分区：
+工作区(工作文件夹)
+暂存区(通过add添加到的区域 在.git文件里)
+版本库(通过commit之后的区域)
+
+四、
+HEAD指向的版本就是当前版本，因此，Git允许我们在版本的历史之间穿梭，使用命令
+git reset --hard <commit_id>
+commit_id不用写全，写前几位  HEAD^表示返回上一个版本 HEAD^^上两个  HEAD~50往上50个版本
+穿梭前，用git log可以查看提交历史，以便确定要回退到哪个版本。
+要重返未来，用git reflog查看命令历史，以便确定要回到未来的哪个版本
+
+五、
+场景1: 当你改乱了工作区某个文件的内容，想直接丢弃工作区的修改时，用命令git checkout -- <file>
+场景2: 当你不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改，分两步，第一步用命令git reset HEAD <file>，就回到了场景1，第二步按场景1操作
+场景3：已经提交了不合适的修改到版本库时，想要撤销本次提交，参考版本回退一节，不过前提是没有推送到远程库
+
+git reset命令既可以回退版本，也可以把暂存区的修改回退到工作区。当我们用HEAD时，表示最新的版本
+
+
+Gitlab 上传命令
+
+Git global setup：
+git config --global user.name "Luo Ming"
+git config --global user.email "524770982@qq.com"
+
+# 从Gitlab上下载项目并 Create a new repository：
+git clone http://10.127.1.171:8888/luoming/PDFExtract.git
+cd PDFExtract
+touch README.md
+git add README.md
+git commit -m "add README"
+git push -u origin master
+
+# 从本地文件中上传项目 Existing folder：
+cd existing_folder
+git init
+git remote add origin http://10.127.1.171:8888/luoming/PDFExtract.git
+git add .
+git commit -m "Initial commit"
+git push -u origin master
+
+# 从本地存在的repository中上传到Gitlab
+Existing Git repository
+cd existing_repo
+git remote add origin http://10.127.1.171:8888/luoming/PDFExtract.git
+git push -u origin --all
+git push -u origin --tags
+
+github上版本回退
+先clone到本地，然后执行
+$ git reset --hard fae688(版本id)
+$ git push -f -u origin master  (-f强制更新)
+
+从github上更新到本地
+首先本地已经有了 git的origin master库 
+然后直接git reset --hard <版本id>
+或者cd到上一层目录，clone项目
+
 从GitHub仓库中clone项目
 1. git init
 2. git clone https://github.com/luoming3/Note_book.git
@@ -293,10 +437,6 @@ git push
 或者
 git commit -am "modify/add test.file"
 git push
-
-
-
-------------------------------------------------------------------
 ------------------------------------------------------------------
 ------------------------------------------------------------------
 ------------------------------------------------------------------
