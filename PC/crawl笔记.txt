@@ -1,0 +1,212 @@
+用XPath解析页面时， headers 用IE浏览器的 User-Agent不容易出错
+IE 9.0
+"User-Agent" : "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0;"
+IE 8.0
+"User-Agent" : "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0; Trident/4.0)"
+
+-------------------------------------------------------------------------------------
+XPath 模糊查询 contains方法 contains(@/1, "/2")  /1 是标签，/2是标签对应的模糊字符串
+//div[contains(@id, "qiushi_tag_")]  然后以其作为根节点再取详细内容
+
+-------------------------------------------------------------------------------------
+XPath返回的是列表
+
+------------------------------------------------------------------------------------- 
+手机浏览器的User-Agent: 
+"User-Agent" : "DYZB/1 CFNetwork/808.2.16 Darwin/16.3.0"
+
+-------------------------------------------------------------------------------------
+scrapy运行爬虫命令(scrapy.Spider)
+1. 新建项目：在cmd命令下，cd到创建项目的目录
+scrapy statproject xxx     xxx为你的spider项目名字
+
+2. 明确目标：明确你要抓取的目标
+编写items.py
+###############################################################################
+import something
+
+class SomethingPipeline(object):
+    def __init__(self):    
+        # 可选实现，做参数初始化等
+        # doing something
+
+    def process_item(self, item, spider):
+        # item (Item 对象) – 被爬取的item
+        # spider (Spider 对象) – 爬取该item的spider
+        # 这个方法必须实现，每个item pipeline组件都需要调用该方法，
+        # 这个方法必须返回一个 Item 对象，被丢弃的item将不会被之后的pipeline组件所处理。
+        return item
+
+    def open_spider(self, spider):
+        # spider (Spider 对象) – 被开启的spider
+        # 可选实现，当spider被开启时，这个方法被调用。
+
+    def close_spider(self, spider):
+        # spider (Spider 对象) – 被关闭的spider
+        # 可选实现，当spider被关闭时，这个方法被调用
+写入JSON文件
+import json
+
+class ItcastJsonPipeline(object):
+
+    def __init__(self):
+        self.file = open('teacher.json', 'wb')
+
+    def process_item(self, item, spider):
+        content = json.dumps(dict(item), ensure_ascii=False) + "\n"
+        self.file.write(content)
+        return item
+
+    def close_spider(self, spider):
+        self.file.close()
+###############################################################################
+3. 制作爬虫：在新建spider项目目录里 输入 
+scrapy genspider spidername "xxx.cn"
+# spidername 是爬虫的名字 后面是爬取网络的域
+然后修改parse(self, response)方法，也可以自己定义一个爬虫方法，在回调函数里面可以指定
+
+4. 储存内容：设计管道储存爬取内容
+在pipelines.py 里面改写代码 注意在setting.py要做相应修改
+
+5. 启动爬虫
+scrapy crawl spidername   
+也可以在新建项目里面创建一个start.py文件
+
+# -*- coding: utf-8 -*-
+from scrapy import cmdline
+
+# 如果没有使用管道文件处理数据，需要另外生成文件命令 这里的数据必须要 return
+# cmdline.execute("scrapy crawl myspider -o teachers.xml".split())
+
+# 如果使用了管道文件处理数据
+cmdline.execute("scrapy crawl myspider".split())
+
+-------------------------------------------------------------------------------------
+scrapy 中的response
+response.body  HTML源码 (response.text)  解析的时候用text，打印的时候用body
+response.xpath('').extract()	返回对应列表
+.extract()  序列化该节点为Unicode字符串并返回list
+
+-------------------------------------------------------------------------------------
+以CrawlSpider为父类启动爬虫
+1. scrapy startproject xxx
+2. scrapy genspider -t crawl spidername "xxx.cn"
+
+-------------------------------------------------------------------------------------
+Scrapy提供了log功能，可以通过 logging 模块使用。
+
+可以修改配置文件settings.py，任意位置添加下面两行，效果会清爽很多。
+
+LOG_FILE = "TencentSpider.log"
+LOG_LEVEL = "INFO"
+
+-------------------------------------------------------------------------------------
+xpath同一个标签下有多个内容，索引是从1开始例如，豆瓣top250中文标题
+//div[@class="info"]//a/span[@class="title"][1]
+
+-------------------------------------------------------------------------------------
+middlewares.py 模板 下载中间键是为了反 反爬虫
+# -*- coding: utf-8 -*-
+
+import random
+from settings import USER_AGENTS,PROXIES
+import base64
+
+
+class RandomUserAgent(object):
+    @staticmethod
+    def process_request(request, spider):
+        useragent = random.choice(USER_AGENTS)
+        # print useragent
+        request.headers.setdefault("User-Agent", useragent)
+
+
+class RandomProxy(object):
+    @staticmethod
+    def process_request(request, spider):
+        proxy = random.choice(PROXIES)
+        # print proxy
+
+        # 根据ip账户有无密码分别处理
+        if proxy['user_passwd'] is None:
+            request.meta['proxy'] = proxy['ip_port']
+        else:
+            request.meta['proxy'] = proxy['ip_port']
+            # 对账户密码进行base64编码转换
+            base64_userpasswd = base64.b64encode(proxy['user_passwd'])
+            request.headers['Proxy-Authorization'] = 'Basic ' + base64_userpasswd
+
+-------------------------------------------------------------------------------------
+scrapy保存信息的最简单的方法主要有四种，-o 输出指定格式的文件，，命令如下：
+# json格式，默认为Unicode编码
+scrapy crawl itcast -o teachers.json
+
+# json lines格式，默认为Unicode编码
+scrapy crawl itcast -o teachers.jsonl
+
+# csv 逗号表达式，可用Excel打开
+scrapy crawl itcast -o teachers.csv
+
+# xml格式
+scrapy crawl itcast -o teachers.xml
+
+-------------------------------------------------------------------------------------
+scrapy.Spider类的请求要以http://开头 而不能直接www.***.com
+
+
+-------------------------------------------------------------------------------------
+处理图片的固定方式：
+setting里面设置存储地址
+IMAGES_STORE = "/Users/Power/lesson_python/1103/day04/douyu/Images"
+
+pipelines文件里面编写ImagesPipeline类
+
+import scrapy
+from scrapy.utils.project import get_project_settings	# 也可以直接from settings import IMAGES_STORE
+from scrapy.pipelines.images import ImagesPipeline
+import os
+
+class ImagesPipeline(ImagesPipeline):
+    #def process_item(self, item, spider):
+    #    return item
+    # 获取settings文件里设置的变量值
+    IMAGES_STORE = get_project_settings().get("IMAGES_STORE")
+
+    def get_media_requests(self, item, info):
+        image_url = item["imagelink"]
+        yield scrapy.Request(image_url)
+
+    def item_completed(self, result, item, info):
+        image_path = [x["path"] for ok, x in result if ok]
+        os.rename(self.IMAGES_STORE + "/" + image_path[0], self.IMAGES_STORE + "/" + item["nickname"] + ".jpg")
+        item["imagePath"] = self.IMAGES_STORE + "/" + item["nickname"]
+        return item
+
+-------------------------------------------------------------------------------------
+scrapy.Request(url, callback=self.parse, meta={'key':item})
+meta参数，从request携带信息，将其传递给response的
+e.g.
+def parse(self, response):
+    item = DoubanspiderItem()
+    ...
+    yield scrapy.Request(url, callback=self.parse_item, meta={'key': item})
+
+def parse_item(self, response):
+    item = response.meta['key']
+    ...
+此时的item和parse函数里的item是同一个
+
+-------------------------------------------------------------------------------------
+scrapy默认发起的是get请求，如果你想发起post请求该怎么办呢？ 
+解决办法就是利用start_request方法，对该方法进行改写，进行post请求
+重写start_requests方法也就不会从start_urls 产生Requests
+
+-------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+

@@ -1,0 +1,325 @@
+------------------------------------------------------------------
+用sublime直接编译python的设置
+1.打开sublime，Tools->Bulid System->New Bulid System
+{
+ "cmd":["python.exe", "-u", "$file"],
+ "path":"C:/Python27",
+ "file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+ "selector": "source.python"
+}
+其中"path": "python.exe安装路径"
+重启
+按ctrl+b就可编译
+
+
+------------------------------------------------------------------
+一、如何在sublime text3中运行python 的交互指令
+
+在已经安装了安装包管理器的前提下：
+①安装sublimeREPL
+按ctrl+shift+p快捷键呼出一个输入框，输入Install Package
+在新出现的输入框里输入SbulimeREPL 回车
+
+②具体操作
+在刚刚的python文件的界面里点击菜单栏的tools->sublimeREPL->python->python run current file
+
+这时就像IDLE一样，会弹出一个新的窗口，而且是可交互的，可以输入
+
+③设置f5为快捷键
+打开preferences->Key Bindings
+写入一下内容(中括号不用输入)
+[
+	{"keys":["f5"],"caption":"SublimeREPL:Python",
+ 		"command":"run_existing_window_command","args":
+		{
+			"id":"repl_python_run",
+			"file":"config/Python/Main.sublime-menu"
+		}
+	},
+]
+
+------------------------------------------------------------------
+二、Sublime text3中文乱码问题
+
+安装插件包 ConvertToUTF8
+ctrl+shift+p->Install Package->ConvertToUTF8
+
+------------------------------------------------------------------
+三、python安装 numpy matplotlib（注 安装numpy之前最好先安装 scipy模块）
+1.将python中的scripts目录添加到系统的Path变量中
+2.安装wheel：
+win+r: pip install wheel
+3.到 http://www.lfd.uci.edu/~gohlke/pythonlibs/ 页面下载相对应版本的安装包
+打开DOC环境
+安装numpy：
+C:\Users\Administrator>pip install D:\Python\Scripts\numpy-1.13.1+mkl-cp27-cp27m-win_amd64.whl
+安装matplotlib：
+C:\Users\Administrator>pip install D:\Python\Scripts\matplotlib-1.5.3-cp27-cp27m-win32.whl
+
+------------------------------------------------------------------
+四、python安装 sklearn
+1. 更新pip。将python.exe所在目录添加到Path中，打开cmd 输入：python -m pip install --upgrade pip
+2. 安装 scipy。cmd下：pip install scipy
+3. 安装 sklearn。cmd下：pip install -U scikit-learn 
+
+------------------------------------------------------------------
+五、64位win10系统安装Mysql 5.7.22
+1. 下载安装包 https://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.22-winx64.zip
+下载完后解压到指定目录，这里解压为 E:\MySQL\mysql-5.7.22-winx64
+2. 配置环境变量
+① 新增系统环境变量名: MYSQL_HOME , 值: E:\MySQL\mysql-5.7.22-winx64
+② 系统变量Path配置添加 %MYSQL_HOME%\bin
+3. 注册windows系统服务
+① 新建一个my.ini文件并把my.ini文件拷贝到c:\windows目录下，my.ini内容如下：
+[mysqld]  
+skip-grant-tables
+port = 3306  
+basedir=E:\MySQL\mysql-5.7.22-winx64 
+datadir=E:\MySQL\mysql-5.7.22-winx64\data  
+max_connections=200  
+character-set-server=utf8  
+default-storage-engine=INNODB  
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES  
+[mysql]  
+default-character-set=utf8
+② 从cmd进入MySQL解压目录bin目录下 cd /d E:\MySQL\mysql-5.7.22-winx64\bin
+然后输入 mysqld.exe -install
+# 如果出现：Install/Remove of the Service Denied!，是因为WINDOW 7 跟 vista 的权限更严格
+C:\Windows\System32 找到CMD.EXE 右键选择 以管理员身份 进行，再进入相应目录执行该命令
+# 解决msvcr120.dll文件丢失问题 https://www.microsoft.com/zh-cn/download/confirmation.aspx?id=40784  下载安装VC++2013
+安装成功后会提示服务安装成功
+
+4. MySQL初始化
+在cmd目录 E:\MySQL\mysql-5.7.22-winx64\bin> 输入: mysqld --initialize
+
+5. 启停服务 （如果没有权限需要右键 管理员打开）
+>net start mysql
+>mysql -u root -p
+初始化时没有设置密码 直接回车就可以使用mysql了
+>net stop mysql
+
+6. 密码设置
+初始化时没有设置密码 直接回车就可以使用mysql了
+
+>mysql -u root -p 新密码
+
+
+------------------------------------------------------------------
+六、同时存在python2 和python3 如何使用pip
+(前提是已经修改好 系统变量PATH)
+首先将安装的python3的目录中将python.exe改名为python3.exe
+然后在cmd下
+python2 -m pip install pack_name
+python3 -m pip install pack_name
+
+国内镜像
+清华  https://pypi.tuna.tsinghua.edu.cn/simple/ 
+中国科技技术大学 http://pypi.mirrors.ustc.edu.cn/simple/
+阿里云 http://mirrors.aliyun.com/pypi/simple/
+使用镜像就在后面加-i参数
+pip install scrapy -i https://pypi.tuna.tsinghua.edu.cn/simple/
+
+------------------------------------------------------------------
+七、用pip安装下载好的whl文件
+(前提是已经安装了wheel模块)
+cmd下进入whl所在目录
+>python3 -m pip install xxx.whl (这里已经将python的exe文件改名为python3)
+
+------------------------------------------------------------------
+八、安装pygame并验证
+进入 https://www.lfd.uci.edu/~gohlke/pythonlibs/ 
+找到 pygame模块，选择对应的版本下载whl文件    （win32 和win_amd64指的是python版本的位数）
+用pip安装该模块
+验证：
+打开cmd 
+>python3 -m pygame.examples.aliens
+
+------------------------------------------------------------------
+# 注意，Python2.x默认编码环境是ASCII，当和取回的数据编码格式不一致时，可能会造成乱码；
+# 我们可以指定保存内容的编码格式，一般情况下，我们可以在代码最上方添加：
+
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
+------------------------------------------------------------------
+operator模块提供的itemgetter函数用于获取对象的哪些维的数据
+operator.itemgetter(index1,index2,...)函数获取的不是值，而是定义了一个函数
+通常与sorted()函数一起使用，如果定义以字典的值排序, 则:
+
+import operator
+result = sorted(dict.items(), key=operator.itemgetter(1))
+
+# dict.items() 将字典的所有项以列表方式返回，列表中每个元素为元组.
+dict无顺序，所以应该先转化为list
+
+------------------------------------------------------------------
+array一维类型没有行，只有列
+a = np.array([1,2,3])
+a.shape = (3,)   
+
+------------------------------------------------------------------
+数组赋值不能用切片来达到相同的目的
+a = np.array([1,2,3])
+b = a[:] 此时a和b共享
+要deepcopy，用array.copy()
+b = a.copy()
+
+------------------------------------------------------------------
+re.sub(pattern, repl, string)
+
+pattern 表示正则中的模式字符串  r''  如果是反斜杠加数字，则对应匹配的组 r'\n' 第n组
+re中的group索引是从1开始，一个括号表示一组()
+
+repl 被替换的字符串，其中的任何反斜杠转义字符，都会被处理 如果有反斜杠\的话，前面加r''
+
+string: 要被处理的原始字符串  
+
+
+re模块
+{m,n} 匹配前一个字符m至n次，若省略n，则匹配m至无限次
+
+\s 匹配任何空白字符 [空格\t\r\n\f\v]
+
+() 分组
+\n 表示与第n组所匹配到的字符相同
+
+(?P<name>) 分组，除了原有的编号外再指定一个额外的别名name
+r'(?P<name>p[a-zA-Z]+)(?P<version>[0-9])' 可以匹配到：python2 python3等 
+(?P=name), 引用别名为name的分组匹配到的字符串  但不作为分组
+
+re.match(pattern, string)和re.search(pattern, string)返回一个re对象 如果没有匹配到返回None
+如果要print需要在后面加.group()
+如果要显示某一组则.group()  或者有别名的组 .group('name')
+
+re.findall(pattern, string) 返回一个列表，列表里是所有匹配出的结果
+如果有分组，则只显示分组内容
+
+re.split(pattern, string)
+
+------------------------------------------------------------------
+Windows下更改pip源
+1. 在资源管理器的地址栏输入%appdata%后回车：
+2. 新建一个pip文件夹，在pip文件夹里新建一个配置文件pip.ini
+3. 编辑配置文件，输入以下内容并保存即可（这个是豆瓣源，较快）：
+[global]
+timeout = 6000
+index-url = http://pypi.douban.com/simple
+trusted-host = pypi.douban.com
+
+------------------------------------------------------------------
+java环境变量的配置
+下载地址：http://www.oracle.com/technetwork/java/javase/downloads/index.html
+
+变量名：JAVA_HOME
+变量值：D:\Java\jdk1.8.1_91        // 要根据自己的实际路径配置
+
+变量名：CLASSPATH
+变量值：.;%JAVA_HOME%\lib\dt.jar;%JAVA_HOME%\lib\tools.jar;         //记得前面有个"."
+
+变量名：Path
+变量值：%JAVA_HOME%\bin;%JAVA_HOME%\jre\bin;			// 如果是win10 分开添加
+
+
+------------------------------------------------------------------
+在sublime text3上配置java环境
+  (1).新建JavaC.sublime-build文件
+	在sublime text3找到tools -> Build System->New Build System,添加内容：
+{
+  "shell_cmd": "runJava.bat \"$file\"",
+  "file_regex": "^(...*?):([0-9]*):?([0-9]*)",
+  "selector": "source.java",
+   "encoding": "UTF-8"
+}
+然后保存，并且文件名为MyJavaC.sublime-build
+  (2).新建runJava.bat文件
+  我们需要在jdk的安装目录下的bin目录下新建一个runJava.bat文件，内容为：
+@echo off
+  cd%~dp1
+  echo Compiling %~nx1......
+  if exist %~n1.class (
+  del %~n1.class
+  )
+ javac %~nx1
+ if exist %~n1.class (
+ echo ------Output------
+ java %~n1
+ )
+
+------------------------------------------------------------------
+JavaIME插件的安装(Java代码补全)
+Preferences –> Package Control –> Add Repository ，然后添加内容：https://github.com/tushortz/JavaIME
+Preferences –> Package Control –> Install Package，然后搜索JavaIME，点击它安装，重启sub3
+
+------------------------------------------------------------------
+永久破解JDK_IDE的方法
+1. 下载IDEA
+https://www.jetbrains.com/idea/download/#section=windows   或者我的百度网盘
+
+2. 下载破解的jar包
+http://idea.lanyus.com/
+选择破解补丁无需使用注册码地址  或者我的百度网盘
+把这个jar包放到IDEA的bin目录下
+3. 配置
+找到idea.exe.vmoptions和idea64.exe.vmoptions文件
+加上一行
+-javaagent:D:\IntelliJIDEA\bin\JetbrainsIdesCrack-3.4-release-enc.jar
+4. 打开IDEA选择Activation code
+复制破解码
+BIG3CLIK6F-eyJsaWNlbnNlSWQiOiJCSUczQ0xJSzZGIiwibGljZW5zZWVOYW1lIjoibGFuIHl1IiwiYXNzaWduZWVOYW1lIjoiIiwiYXNzaWduZWVFbWFpbCI6IiIsImxpY2Vuc2VSZXN0cmljdGlvbiI6IkZvciBlZHVjYXRpb25hbCB1c2Ugb25seSIsImNoZWNrQ29uY3VycmVudFVzZSI6ZmFsc2UsInByb2R1Y3RzIjpbeyJjb2RlIjoiQUMiLCJwYWlkVXBUbyI6IjIwMTctMTEtMjMifSx7ImNvZGUiOiJETSIsInBhaWRVcFRvIjoiMjAxNy0xMS0yMyJ9LHsiY29kZSI6IklJIiwicGFpZFVwVG8iOiIyMDE3LTExLTIzIn0seyJjb2RlIjoiUlMwIiwicGFpZFVwVG8iOiIyMDE3LTExLTIzIn0seyJjb2RlIjoiV1MiLCJwYWlkVXBUbyI6IjIwMTctMTEtMjMifSx7ImNvZGUiOiJEUE4iLCJwYWlkVXBUbyI6IjIwMTctMTEtMjMifSx7ImNvZGUiOiJSQyIsInBhaWRVcFRvIjoiMjAxNy0xMS0yMyJ9LHsiY29kZSI6IlBTIiwicGFpZFVwVG8iOiIyMDE3LTExLTIzIn0seyJjb2RlIjoiREMiLCJwYWlkVXBUbyI6IjIwMTctMTEtMjMifSx7ImNvZGUiOiJEQiIsInBhaWRVcFRvIjoiMjAxNy0xMS0yMyJ9LHsiY29kZSI6IlJNIiwicGFpZFVwVG8iOiIyMDE3LTExLTIzIn0seyJjb2RlIjoiUEMiLCJwYWlkVXBUbyI6IjIwMTctMTEtMjMifSx7ImNvZGUiOiJDTCIsInBhaWRVcFRvIjoiMjAxNy0xMS0yMyJ9XSwiaGFzaCI6IjQ3NzU1MTcvMCIsImdyYWNlUGVyaW9kRGF5cyI6MCwiYXV0b1Byb2xvbmdhdGVkIjpmYWxzZSwiaXNBdXRvUHJvbG9uZ2F0ZWQiOmZhbHNlfQ==-iygsIMXTVeSyYkUxAqpHmymrgwN5InkOfeRhhPIPa88FO9FRuZosIBTY18tflChACznk3qferT7iMGKm7pumDTR4FbVVlK/3n1ER0eMKu2NcaXb7m10xT6kLW1Xb3LtuZEnuis5pYuEwT1zR7GskeNWdYZ0dAJpNDLFrqPyAPo5s1KLDHKpw+VfVd4uf7RMjOIzuJhAAYAG+amyivQt61I9aYiwpHQvUphvTwi0X0qL/oDJHAQbIv4Qwscyo4aYZJBKutYioZH9rgOP6Yw/sCltpoPWlJtDOcw/iEWYiCVG1pH9AWjCYXZ9AbbEBOWV71IQr5VWrsqFZ7cg7hLEJ3A==-MIIEPjCCAiagAwIBAgIBBTANBgkqhkiG9w0BAQsFADAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBMB4XDTE1MTEwMjA4MjE0OFoXDTE4MTEwMTA4MjE0OFowETEPMA0GA1UEAwwGcHJvZDN5MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxcQkq+zdxlR2mmRYBPzGbUNdMN6OaXiXzxIWtMEkrJMO/5oUfQJbLLuMSMK0QHFmaI37WShyxZcfRCidwXjot4zmNBKnlyHodDij/78TmVqFl8nOeD5+07B8VEaIu7c3E1N+e1doC6wht4I4+IEmtsPAdoaj5WCQVQbrI8KeT8M9VcBIWX7fD0fhexfg3ZRt0xqwMcXGNp3DdJHiO0rCdU+Itv7EmtnSVq9jBG1usMSFvMowR25mju2JcPFp1+I4ZI+FqgR8gyG8oiNDyNEoAbsR3lOpI7grUYSvkB/xVy/VoklPCK2h0f0GJxFjnye8NT1PAywoyl7RmiAVRE/EKwIDAQABo4GZMIGWMAkGA1UdEwQCMAAwHQYDVR0OBBYEFGEpG9oZGcfLMGNBkY7SgHiMGgTcMEgGA1UdIwRBMD+AFKOetkhnQhI2Qb1t4Lm0oFKLl/GzoRykGjAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBggkA0myxg7KDeeEwEwYDVR0lBAwwCgYIKwYBBQUHAwEwCwYDVR0PBAQDAgWgMA0GCSqGSIb3DQEBCwUAA4ICAQC9WZuYgQedSuOc5TOUSrRigMw4/+wuC5EtZBfvdl4HT/8vzMW/oUlIP4YCvA0XKyBaCJ2iX+ZCDKoPfiYXiaSiH+HxAPV6J79vvouxKrWg2XV6ShFtPLP+0gPdGq3x9R3+kJbmAm8w+FOdlWqAfJrLvpzMGNeDU14YGXiZ9bVzmIQbwrBA+c/F4tlK/DV07dsNExihqFoibnqDiVNTGombaU2dDup2gwKdL81ua8EIcGNExHe82kjF4zwfadHk3bQVvbfdAwxcDy4xBjs3L4raPLU3yenSzr/OEur1+jfOxnQSmEcMXKXgrAQ9U55gwjcOFKrgOxEdek/Sk1VfOjvS+nuM4eyEruFMfaZHzoQiuw4IqgGc45ohFH0UUyjYcuFxxDSU9lMCv8qdHKm+wnPRb0l9l5vXsCBDuhAGYD6ss+Ga+aDY6f/qXZuUCEUOH3QUNbbCUlviSz6+GiRnt1kA9N2Qachl+2yBfaqUqr8h7Z2gsx5LcIf5kYNsqJ0GavXTVyWh7PYiKX4bs354ZQLUwwa/cG++2+wNWP+HtBhVxMRNTdVhSm38AknZlD+PTAsWGu9GyLmhti2EnVwGybSD2Dxmhxk3IPCkhKAK+pl0eWYGZWG3tJ9mZ7SowcXLWDFAk0lRJnKGFMTggrWjV8GYpw5bq23VmIqqDLgkNzuoog==
+
+Java Mevan设置
+setting 搜索mevan 
+1. 设置Maven home directory: Maven解压目录
+2. 设置User settings file: conf/settings.xml
+3. 设置Local repository: 在Maven目录新建的my-repository
+
+------------------------------------------------------------------
+从GitHub仓库中clone项目
+1. git init
+2. git clone https://github.com/luoming3/Note_book.git
+
+修改github项目:
+先从github中clone到某个文件夹 然后初始化 git init
+删除：
+rm test.file  # 如果是文件夹 在后面加 -r
+git commit -am "delete test.file"
+git push
+
+修改:
+git add test.file
+git commit -m "modify/add test.file"
+git push
+或者
+git commit -am "modify/add test.file"
+git push
+
+
+
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+
+
+
+
+

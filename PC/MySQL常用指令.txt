@@ -1,0 +1,171 @@
+创建表：
+create table students3(
+id int(11) auto_increment primary key not null,
+name varchar(10) not null,
+gender bit default 1,
+birthday datetime,
+isDelete bit default 0
+);
+
+create table subjects(
+id int auto_increment primary not null,
+name varchar not null,
+time datetime,
+isDelete bit default 0);
+
+创建关系表：
+create table scores(
+id int primary key auto_increment not null,
+score decimal(4,1) not null,
+stuid int not null,
+subid int not null,
+foreign key(stuid) references students(id),
+foreign key(subid) references subjects(id));
+
+添加外键：
+alter table scores add constraint stu_sco(连接的名字，自己起) 
+foreign key(stuid) references students(id);
+# 起名字是为了以后删除该连接
+
+----------------------------------------------------------
+
+连接查询：
+select students.name,subjects.name,scores.score
+from scores
+inner join students on scores.stuid=students.id
+inner join subjects on scores.subid=subjects.id;
+
+# from后面三个表的顺序不重要，但是on后的关系和on前有关
+# 下面语句与上面相同
+select students.name,subjects.name,scores.score
+from students
+inner join scores on scores.stuid=students.id
+inner join subjects on scores.subid=subjects.id;
+
+# inner join　显示所连接的表都能对应上的数据
+
+# left join 以左表数据为标准，右表中的数据如果不存在则以null填充
+select *
+from students
+left join scores on scores.stuid=students.id;
+
+＃right join 以右表的数据为标准，左表中的数据如果不存在则以null填充
+select *
+from students
+right join scores on scores.stuid=students.id;
+
+----------------------------------------------------------
+
+查询的语句顺序：
+select distinct *|table.column
+from table1 inner|left|right join table2 on table1.column=table2.column
+where ...
+group by ... having ...	# having是对group by的结果进行筛选
+order by column asc|desc
+limit start,count;
+
+----------------------------------------------------------
+
+创建视图 视图的用途就是查询
+create view v_2 as
+select students.*,scores.score,subjects.name as 'course'
+from scores
+inner join students on scores.stuid=students.id
+inner join subjects on scores.subid=subjects.id
+where students.isDelete=0;
+
+----------------------------------------------------------
+
+自关联：
+物理上一个表，逻辑上多个表，叫做自关联(本表的某个字段与该表内的主键相连)
+create table areas(
+id int primary key,
+title varchar(20),
+pid int,
+foreign key(pid) references areas(id)
+);
+
+从sql文件中导入数据,确定该文件在进入mysql的目录
+source areas.sql;
+
+自关联语句查询，需要起别名
+select city.* from areas as city
+inner join areas as province on city.pid=province.id
+where province.atitle='山西省';
+
+查询市的名称为“广州市”的所有区县
+select dis.*,dis2.* from areas as dis
+inner join areas as city on city.id=dis.pid
+left join areas as dis2 on dis.id=dis2.pid
+where city.atitle='广州市';
+
+----------------------------------------------------------
+
+事务(对数据进行更改时insert update delete)：
+begin;　开启事务
+commit;　执行事务
+rollback; 回滚; 返回begin之前的状态
+begin;开启事务之后，所执行的所有命令都会在内存级的临时表中操作，当在另一个终端中查看
+该数据库时并无改变.
+在执行commit之后，前面所执行的命令才能生效，并结束事务.
+在执行rollback后，前面所执行的命令均无效，并结束事务.
+
+----------------------------------------------------------
+
+索引　大大提高查询速度，同时降低更新表的速度,建立索引会占用磁盘空间的索引文件
+查看索引:
+show index from table_name;
+创建索引:
+create index index_name on table_name(cloumn_name(length));
+删除索引:
+drop index index_name on table_name;
+
+----------------------------------------------------------
+
+创建监控:	#　仅在本次连接的mysql中生效
+set profiling=1;
+显示监控:
+show profiles;
+
+----------------------------------------------------------
+
+varchar 与 char　的区别
+如果确定范围用char, 不确定范围用varchar
+
+----------------------------------------------------------
+
+用python交互
+在linux系统里 要安装 sudo apt-get install python-mysql
+编写py文件时，导入 import Mysqldb
+
+在win系统里，安装 PyMySQL模块
+编写py文件，导入 pymysql
+
+一般将代码写成类封装起来
+conn = pymysql.connect()  # 建立数据库的连接
+cur = conn.cursor() 	  # 构建光标
+
+cur.execute(sql, params)  # 输入sql命令
+cur.commit()		  # 执行事务
+
+cur.fetchone()		  # 返回查询结果的第一行数据
+cur.fetchall() 		  # 返回查询结果的所有数据
+
+cur.close()		  # 关闭光标
+conn.close()		  # 关闭数据库连接
+
+----------------------------------------------------------
+----------------------------------------------------------
+----------------------------------------------------------
+----------------------------------------------------------
+----------------------------------------------------------
+----------------------------------------------------------
+----------------------------------------------------------
+----------------------------------------------------------
+----------------------------------------------------------
+
+
+
+
+
+

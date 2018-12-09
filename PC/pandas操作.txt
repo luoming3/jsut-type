@@ -1,0 +1,108 @@
+有Series和DataFrame类型
+from pandas import Series, DataFrame
+import pandas as pd
+
+索引
+直接索引 只能通过列名索引
+obj['name']
+obj[n:m]  索引行名从n到m的行
+
+如果要索引某一行
+obj.loc[[i,j]]  索引行标签为i, j的行
+
+# loc与iloc的区别
+
+组合索引
+obj.loc[1:5, ['a','b','c']]		# 通过行标签索引行数据（行标签）
+# 这里的1:5表示索引的标签, 左闭右开
+
+obj.iloc[1:5, ['a','b','c']]		# 通过行号索引行数据（位置）
+# 这里的1:5表示索引的行号, 左闭右开
+
+
+表示第一例
+obj.iloc[:, 0]
+
+
+算术运算和数据对齐
++ - * /
+找不到对象时用NaN填充
+函数
+add sub div mul对应加减乘除
+e.g.
+df1.add(df2, fill_value=0)	# fill_value参数设置填充值
+
+
+排序和排名
+df.sort_index(axis=0) 	# 默认按照index排序，如果axis=1则按照索引排序
+df.sort_values(by=[])	# 特定某个属性进行排序
+
+
+提出重复行数据
+df_obj['套餐'].drop_duplicates() 
+
+df_obj = DataFrame() #创建DataFrame对象
+
+df_obj.dtypes #查看各行的数据格式
+
+df_obj.head() #查看前几行的数据,默认前5行
+
+df_obj.tail() #查看后几行的数据,默认后5行
+
+df_obj.index #查看索引
+
+df_obj.columns #查看列名
+
+df_obj.values #查看数据值
+
+df_obj.describe #描述性统计
+[count min max argmin argmax idxmin idxmax sum mean var std]
+df_obj.T #转置
+
+
+
+筛选数据
+df_obj['用户号码'].isin(alist) #将要过滤的数据放入字典中,使用isin对数据进行筛选,返回行索引以及每行筛选的结果,若匹配则返回ture
+# 相当于sql中的where
+df_obj[df_obj['用户号码'].isin(alist)]	# alist是一个list类型
+  
+# 使用正则表达式进行模糊匹配,*匹配0或无限次,?匹配0或1次
+df_obj[df_obj['套餐'].str.contains(r'.*?语音CDMA.*')] 
+
+
+数据统计
+# 数据频率
+Series_obj.value_counts()
+
+# 如果是想统计dataframe的词频
+df.apply(pd.value_counts)
+df[''].value_counts()
+
+
+数据转换
+# replace替换，可以用正则
+df_obj['支局_维护线'] = df_obj['支局_维护线'].str.replace('巫溪分公司(.{2,})支局','\\1')
+
+# 返回去除重复后的dataframe
+df_obj['支局_维护线'].drop_duplicates() 
+
+
+删除指定轴上的项
+
+# drop 默认axis=0 并返回删除后的dataframe
+obj.drop(['a','b'])  # 删除行
+obj.drop(['高管', '职务'], axis=1) # 删除列
+
+
+改变属性的类型  object转化为numeric
+Series 转化为数值类型
+pd.to_numeric(df[''])
+df_na.loc[:, '实缴出资额'] = pd.to_numeric(df_na['实缴出资额'])
+
+如果是dataframe
+df.apply(pd.to_numeric)
+
+
+
+
+
